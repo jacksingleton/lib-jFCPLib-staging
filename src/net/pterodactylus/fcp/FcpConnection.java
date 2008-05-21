@@ -19,6 +19,7 @@
 
 package net.pterodactylus.fcp;
 
+import java.io.Closeable;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,14 +32,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * An FCP connection to a Freenet node.
- * 
+ *
  * @author David ‘Bombe’ Roden &lt;bombe@freenetproject.org&gt;
  * @version $Id$
  */
-public class FcpConnection {
+public class FcpConnection implements Closeable {
+
+	/** Logger. */
+	private static final Logger logger = Logger.getLogger(FcpConnection.class.getName());
 
 	/** The default port for FCP v2. */
 	public static final int DEFAULT_PORT = 9481;
@@ -70,7 +75,7 @@ public class FcpConnection {
 	/**
 	 * Creates a new FCP connection to the freenet node running on localhost,
 	 * using the default port.
-	 * 
+	 *
 	 * @throws UnknownHostException
 	 *             if the hostname can not be resolved
 	 */
@@ -81,7 +86,7 @@ public class FcpConnection {
 	/**
 	 * Creates a new FCP connection to the Freenet node running on the given
 	 * host, listening on the default port.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname of the Freenet node
 	 * @throws UnknownHostException
@@ -94,7 +99,7 @@ public class FcpConnection {
 	/**
 	 * Creates a new FCP connection to the Freenet node running on the given
 	 * host, listening on the given port.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname of the Freenet node
 	 * @param port
@@ -109,7 +114,7 @@ public class FcpConnection {
 	/**
 	 * Creates a new FCP connection to the Freenet node running at the given
 	 * address, listening on the default port.
-	 * 
+	 *
 	 * @param address
 	 *            The address of the Freenet node
 	 */
@@ -120,7 +125,7 @@ public class FcpConnection {
 	/**
 	 * Creates a new FCP connection to the Freenet node running at the given
 	 * address, listening on the given port.
-	 * 
+	 *
 	 * @param address
 	 *            The address of the Freenet node
 	 * @param port
@@ -137,7 +142,7 @@ public class FcpConnection {
 
 	/**
 	 * Adds the given listener to the list of listeners.
-	 * 
+	 *
 	 * @param fcpListener
 	 *            The listener to add
 	 */
@@ -147,7 +152,7 @@ public class FcpConnection {
 
 	/**
 	 * Removes the given listener from the list of listeners.
-	 * 
+	 *
 	 * @param fcpListener
 	 *            The listener to remove
 	 */
@@ -157,7 +162,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies listeners that a “NodeHello” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedNodeHello(FcpConnection, NodeHello)
 	 * @param nodeHello
 	 *            The “NodeHello” message
@@ -171,7 +176,7 @@ public class FcpConnection {
 	/**
 	 * Notifies listeners that a “CloseConnectionDuplicateClientName” message
 	 * was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedCloseConnectionDuplicateClientName(FcpConnection,
 	 *      CloseConnectionDuplicateClientName)
 	 * @param closeConnectionDuplicateClientName
@@ -185,7 +190,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies listeners that a “SSKKeypair” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedSSKKeypair(FcpConnection, SSKKeypair)
 	 * @param sskKeypair
 	 *            The “SSKKeypair” message
@@ -198,7 +203,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies listeners that a “Peer” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPeer(FcpConnection, Peer)
 	 * @param peer
 	 *            The “Peer” message
@@ -211,7 +216,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that an “EndListPeers” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedEndListPeers(FcpConnection, EndListPeers)
 	 * @param endListPeers
 	 *            The “EndListPeers” message
@@ -224,7 +229,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PeerNote” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPeerNote(FcpConnection, PeerNote)
 	 * @param peerNote
 	 */
@@ -236,7 +241,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that an “EndListPeerNotes” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedEndListPeerNotes(FcpConnection,
 	 *      EndListPeerNotes)
 	 * @param endListPeerNotes
@@ -250,7 +255,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PeerRemoved” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPeerRemoved(FcpConnection, PeerRemoved)
 	 * @param peerRemoved
 	 *            The “PeerRemoved” message
@@ -263,7 +268,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “NodeData” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedNodeData(FcpConnection, NodeData)
 	 * @param nodeData
 	 *            The “NodeData” message
@@ -276,7 +281,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “TestDDAReply” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedTestDDAReply(FcpConnection, TestDDAReply)
 	 * @param testDDAReply
 	 *            The “TestDDAReply” message
@@ -289,7 +294,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “TestDDAComplete” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedTestDDAComplete(FcpConnection, TestDDAComplete)
 	 * @param testDDAComplete
 	 *            The “TestDDAComplete” message
@@ -302,7 +307,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PersistentGet” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPersistentGet(FcpConnection, PersistentGet)
 	 * @param persistentGet
 	 *            The “PersistentGet” message
@@ -315,7 +320,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PersistentPut” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPersistentPut(FcpConnection, PersistentPut)
 	 * @param persistentPut
 	 *            The “PersistentPut” message
@@ -329,7 +334,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that a “EndListPersistentRequests” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedEndListPersistentRequests(FcpConnection,
 	 *      EndListPersistentRequests)
 	 * @param endListPersistentRequests
@@ -343,7 +348,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “URIGenerated” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedURIGenerated(FcpConnection, URIGenerated)
 	 * @param uriGenerated
 	 *            The “URIGenerated” message
@@ -356,7 +361,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “DataFound” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedDataFound(FcpConnection, DataFound)
 	 * @param dataFound
 	 *            The “DataFound” message
@@ -369,7 +374,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that an “AllData” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedAllData(FcpConnection, AllData)
 	 * @param allData
 	 *            The “AllData” message
@@ -382,7 +387,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “SimpleProgress” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedSimpleProgress(FcpConnection, SimpleProgress)
 	 * @param simpleProgress
 	 *            The “SimpleProgress” message
@@ -395,7 +400,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “StartedCompression” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedStartedCompression(FcpConnection,
 	 *      StartedCompression)
 	 * @param startedCompression
@@ -409,7 +414,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “FinishedCompression” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receviedFinishedCompression(FcpConnection,
 	 *      FinishedCompression)
 	 * @param finishedCompression
@@ -424,7 +429,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that an “UnknownPeerNoteType” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedUnknownPeerNoteType(FcpConnection,
 	 *      UnknownPeerNoteType)
 	 * @param unknownPeerNoteType
@@ -439,7 +444,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that an “UnknownNodeIdentifier” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedUnknownNodeIdentifier(FcpConnection,
 	 *      UnknownNodeIdentifier)
 	 * @param unknownNodeIdentifier
@@ -453,7 +458,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “ConfigData” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedConfigData(FcpConnection, ConfigData)
 	 * @param configData
 	 *            The “ConfigData” message
@@ -466,7 +471,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “GetFailed” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedGetFailed(FcpConnection, GetFailed)
 	 * @param getFailed
 	 *            The “GetFailed” message
@@ -479,7 +484,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PutFailed” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPutFailed(FcpConnection, PutFailed)
 	 * @param putFailed
 	 *            The “PutFailed” message
@@ -493,7 +498,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that an “IdentifierCollision” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedIdentifierCollision(FcpConnection,
 	 *      IdentifierCollision)
 	 * @param identifierCollision
@@ -507,7 +512,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that an “PersistentPutDir” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPersistentPutDir(FcpConnection,
 	 *      PersistentPutDir)
 	 * @param persistentPutDir
@@ -522,7 +527,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that a “PersistentRequestRemoved” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPersistentRequestRemoved(FcpConnection,
 	 *      PersistentRequestRemoved)
 	 * @param persistentRequestRemoved
@@ -536,7 +541,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “SubscribedUSKUpdate” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedSubscribedUSKUpdate(FcpConnection,
 	 *      SubscribedUSKUpdate)
 	 * @param subscribedUSKUpdate
@@ -550,7 +555,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PluginInfo” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPluginInfo(FcpConnection, PluginInfo)
 	 * @param pluginInfo
 	 *            The “PluginInfo” message
@@ -563,7 +568,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that an “FCPPluginReply” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedFCPPluginReply(FcpConnection, FCPPluginReply)
 	 * @param fcpPluginReply
 	 *            The “FCPPluginReply” message
@@ -577,7 +582,7 @@ public class FcpConnection {
 	/**
 	 * Notifies all listeners that a “PersistentRequestModified” message was
 	 * received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPersistentRequestModified(FcpConnection,
 	 *      PersistentRequestModified)
 	 * @param persistentRequestModified
@@ -591,7 +596,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PutSuccessful” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPutSuccessful(FcpConnection, PutSuccessful)
 	 * @param putSuccessful
 	 *            The “PutSuccessful” message
@@ -604,7 +609,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “PutFetchable” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedPutFetchable(FcpConnection, PutFetchable)
 	 * @param putFetchable
 	 *            The “PutFetchable” message
@@ -617,7 +622,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that a “ProtocolError” message was received.
-	 * 
+	 *
 	 * @see FcpListener#receivedProtocolError(FcpConnection, ProtocolError)
 	 * @param protocolError
 	 *            The “ProtocolError” message
@@ -630,7 +635,7 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all registered listeners that a message has been received.
-	 * 
+	 *
 	 * @see FcpListener#receivedMessage(FcpConnection, FcpMessage)
 	 * @param fcpMessage
 	 *            The message that was received
@@ -643,12 +648,15 @@ public class FcpConnection {
 
 	/**
 	 * Notifies all listeners that the connection to the node was closed.
-	 * 
-	 * @see FcpListener#connectionClosed(FcpConnection)
+	 *
+	 * @param throwable
+	 *            The exception that caused the disconnect, or <code>null</code>
+	 *            if there was no exception
+	 * @see FcpListener#connectionClosed(FcpConnection, Throwable)
 	 */
-	private void fireConnectionClosed() {
+	private void fireConnectionClosed(Throwable throwable) {
 		for (FcpListener fcpListener: fcpListeners) {
-			fcpListener.connectionClosed(this);
+			fcpListener.connectionClosed(this, throwable);
 		}
 	}
 
@@ -658,7 +666,7 @@ public class FcpConnection {
 
 	/**
 	 * Connects to the node.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an I/O error occurs
 	 * @throws IllegalStateException
@@ -668,6 +676,7 @@ public class FcpConnection {
 		if (connectionHandler != null) {
 			throw new IllegalStateException("already connected, disconnect first");
 		}
+		logger.info("connecting to " + address + ":" + port + "…");
 		remoteSocket = new Socket(address, port);
 		remoteInputStream = remoteSocket.getInputStream();
 		remoteOutputStream = remoteSocket.getOutputStream();
@@ -677,27 +686,32 @@ public class FcpConnection {
 	/**
 	 * Disconnects from the node. If there is no connection to the node, this
 	 * method does nothing.
+	 *
+	 * @deprecated Use {@link #close()} instead
 	 */
+	@Deprecated
 	public synchronized void disconnect() {
-		if (connectionHandler == null) {
-			return;
-		}
-		FcpUtils.close(remoteSocket);
-		connectionHandler.stop();
-		connectionHandler = null;
-		fireConnectionClosed();
+		close();
+	}
+
+	/**
+	 * Closes the connection. If there is no connection to the node, this method
+	 * does nothing.
+	 */
+	public void close() {
+		handleDisconnect(null);
 	}
 
 	/**
 	 * Sends the given FCP message.
-	 * 
+	 *
 	 * @param fcpMessage
 	 *            The FCP message to send
 	 * @throws IOException
 	 *             if an I/O error occurs
 	 */
 	public synchronized void sendMessage(FcpMessage fcpMessage) throws IOException {
-		System.out.println("sending message: " + fcpMessage.getName());
+		logger.fine("sending message: " + fcpMessage.getName());
 		fcpMessage.write(remoteOutputStream);
 	}
 
@@ -708,11 +722,12 @@ public class FcpConnection {
 	/**
 	 * Handles the given message, notifying listeners. This message should only
 	 * be called by {@link FcpConnectionHandler}.
-	 * 
+	 *
 	 * @param fcpMessage
 	 *            The received message
 	 */
 	void handleMessage(FcpMessage fcpMessage) {
+		logger.fine("received message: " + fcpMessage.getName());
 		String messageName = fcpMessage.getName();
 		countMessage(messageName);
 		if ("SimpleProgress".equals(messageName)) {
@@ -804,13 +819,20 @@ public class FcpConnection {
 
 	/**
 	 * Handles a disconnect from the node.
+	 *
+	 * @param throwable
+	 *            The exception that caused the disconnect, or <code>null</code>
+	 *            if there was no exception
 	 */
-	synchronized void handleDisconnect() {
+	synchronized void handleDisconnect(Throwable throwable) {
 		FcpUtils.close(remoteInputStream);
 		FcpUtils.close(remoteOutputStream);
 		FcpUtils.close(remoteSocket);
-		connectionHandler = null;
-		fireConnectionClosed();
+		if (connectionHandler != null) {
+			connectionHandler.stop();
+			connectionHandler = null;
+			fireConnectionClosed(throwable);
+		}
 	}
 
 	//
@@ -820,7 +842,7 @@ public class FcpConnection {
 	/**
 	 * Incremets the counter in {@link #incomingMessageStatistics} by <cod>1</code>
 	 * for the given message name.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the message to count
 	 */
@@ -830,11 +852,12 @@ public class FcpConnection {
 			oldValue = incomingMessageStatistics.get(name);
 		}
 		incomingMessageStatistics.put(name, oldValue + 1);
+		logger.finest("count for " + name + ": " + (oldValue + 1));
 	}
 
 	/**
 	 * Returns a limited input stream from the node’s input stream.
-	 * 
+	 *
 	 * @param dataLength
 	 *            The length of the stream
 	 * @return The limited input stream
@@ -849,7 +872,7 @@ public class FcpConnection {
 	/**
 	 * A wrapper around an {@link InputStream} that only supplies a limit number
 	 * of bytes from the underlying input stream.
-	 * 
+	 *
 	 * @author <a href="mailto:dr@ina-germany.de">David Roden</a>
 	 * @version $Id$
 	 */
@@ -861,7 +884,7 @@ public class FcpConnection {
 		/**
 		 * Creates a new LimitedInputStream that supplies at most
 		 * <code>length</code> bytes from the given input stream.
-		 * 
+		 *
 		 * @param inputStream
 		 *            The input stream
 		 * @param length
@@ -926,7 +949,7 @@ public class FcpConnection {
 		/**
 		 * {@inheritDoc} This method does nothing, as {@link #mark(int)} and
 		 * {@link #reset()} are not supported.
-		 * 
+		 *
 		 * @see java.io.FilterInputStream#mark(int)
 		 */
 		@Override
@@ -936,7 +959,7 @@ public class FcpConnection {
 
 		/**
 		 * {@inheritDoc}
-		 * 
+		 *
 		 * @see java.io.FilterInputStream#markSupported()
 		 * @return <code>false</code>
 		 */
@@ -948,7 +971,7 @@ public class FcpConnection {
 		/**
 		 * {@inheritDoc} This method does nothing, as {@link #mark(int)} and
 		 * {@link #reset()} are not supported.
-		 * 
+		 *
 		 * @see java.io.FilterInputStream#reset()
 		 */
 		@Override
@@ -959,7 +982,7 @@ public class FcpConnection {
 		/**
 		 * Consumes the input stream, i.e. read all bytes until the limit is
 		 * reached.
-		 * 
+		 *
 		 * @throws IOException
 		 *             if an I/O error occurs
 		 */
