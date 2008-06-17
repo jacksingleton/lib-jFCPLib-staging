@@ -23,8 +23,7 @@ package net.pterodactylus.fcp;
  * A “PersistentPut” message notifies a client about a persistent
  * {@link ClientPut} request.
  * 
- * @author <a href="mailto:dr@ina-germany.de">David Roden</a>
- * @version $Id$
+ * @author David ‘Bombe’ Roden &lt;bombe@freenetproject.org&gt;
  */
 public class PersistentPut extends BaseMessage {
 
@@ -113,11 +112,7 @@ public class PersistentPut extends BaseMessage {
 	 *         priority could not be parsed
 	 */
 	public Priority getPriority() {
-		try {
-			return Priority.values()[Integer.valueOf(getField("PriorityClass"))];
-		} catch (NumberFormatException nfe1) {
-			return Priority.unknown;
-		}
+		return Priority.values()[FcpUtils.safeParseInt(getField("PriorityClass"), Priority.unknown.ordinal())];
 	}
 
 	/**

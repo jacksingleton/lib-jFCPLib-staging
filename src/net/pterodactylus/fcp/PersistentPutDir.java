@@ -25,7 +25,6 @@ package net.pterodactylus.fcp;
  * message.
  * 
  * @author David ‘Bombe’ Roden &lt;bombe@freenetproject.org&gt;
- * @version $Id$
  */
 public class PersistentPutDir extends BaseMessage {
 
@@ -72,7 +71,7 @@ public class PersistentPutDir extends BaseMessage {
 	 * @return The priority of the request
 	 */
 	public Priority getPriority() {
-		return Priority.valueOf(getField("PriorityClass"));
+		return Priority.values()[FcpUtils.safeParseInt(getField("PriorityClass"), Priority.unknown.ordinal())];
 	}
 
 	/**

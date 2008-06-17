@@ -22,8 +22,7 @@ package net.pterodactylus.fcp;
 /**
  * Some convenience methods for parsing a “NodeHello” message from the node.
  * 
- * @author <a href="mailto:dr@ina-germany.de">David Roden</a>
- * @version $Id$
+ * @author David ‘Bombe’ Roden &lt;bombe@freenetproject.org&gt;
  */
 public class NodeHello extends BaseMessage {
 
