@@ -21,24 +21,32 @@ package net.pterodactylus.fcp;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
+
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Tests various commands and the FCP connection.
  * 
  * @author David ‘Bombe’ Roden &lt;bombe@freenetproject.org&gt;
  */
-public class FcpTest extends TestCase {
+public class FcpTest {
 
-	/** The FCP connection. */
+    public static final String NODE_HOST = "localhost";
+    public static final Integer NODE_PORT = 9481;
+
+
+    /** The FCP connection. */
 	private FcpConnection fcpConnection;
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	@Before
 	protected void setUp() throws Exception {
-		fcpConnection = new FcpConnection("wing");
+		fcpConnection = new FcpConnection(NODE_HOST, NODE_PORT);
 		fcpConnection.connect();
 		fcpConnection.sendMessage(new ClientHello("FcpTest"));
 	}
@@ -46,7 +54,7 @@ public class FcpTest extends TestCase {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
+	@After
 	protected void tearDown() throws Exception {
 		fcpConnection.close();
 	}
@@ -55,6 +63,7 @@ public class FcpTest extends TestCase {
 	 * Tests the FCP connection be simply {@link #setUp() setting it up} and
 	 * {@link #tearDown() tearing it down} again.
 	 */
+    @Test
 	public void testFcpConnection() {
 		/* do nothing. */
 	}
@@ -67,6 +76,7 @@ public class FcpTest extends TestCase {
 	 * @throws InterruptedException
 	 *             if {@link Object#wait()} wakes up spuriously
 	 */
+    @Test
 	public void testGenerateSSK() throws IOException, InterruptedException {
 		final SSKKeypair[] keypair = new SSKKeypair[1];
 		FcpAdapter fcpAdapter = new FcpAdapter() {
