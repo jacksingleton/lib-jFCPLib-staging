@@ -45,7 +45,7 @@ public class FcpTest {
 	 * {@inheritDoc}
 	 */
 	@Before
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		fcpConnection = new FcpConnection(NODE_HOST, NODE_PORT);
 		fcpConnection.connect();
 		fcpConnection.sendMessage(new ClientHello("FcpTest"));
@@ -55,7 +55,7 @@ public class FcpTest {
 	 * {@inheritDoc}
 	 */
 	@After
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		fcpConnection.close();
 	}
 
